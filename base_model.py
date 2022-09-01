@@ -35,3 +35,11 @@ class BaseModel(ABC):
     @abstractmethod
     def save_model(self):
         pass
+
+    @abstractmethod
+    def load_model(self, index=0):
+        pass
+
+    @abstractmethod
+    def summary(self):
+        pass

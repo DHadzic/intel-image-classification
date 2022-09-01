@@ -2,10 +2,14 @@ from datetime import date
 from base_model import BaseModel
 from tensorflow import keras
 from keras.layers import Conv2D, MaxPool2D, Dense, Dropout, Flatten
+from keras.models import load_model
+import os
 
 
 class SimpleModel(BaseModel):
     def __init__(self):
+        self.model_path1 = './models/simple-14k-71p'
+        self.model_path2 = './models/simple-18k-70p'
         super().__init__()
 
     def _epochs(self):
@@ -54,3 +58,18 @@ class SimpleModel(BaseModel):
         date_str = date.today().strftime("%d-%m-%Y")
         model_file = 'models/cnn' + date_str
         self.model.save(model_file)
+
+    def load_model(self, index=0):
+        path = self.model_path1
+
+        if index == 0:
+            path = self.model_path1
+        elif index == 1:
+            path = self.model_path2
+
+        os.path.exists(path)
+        self.model = load_model(path)
+
+    def summary(self):
+        self.model.summary()
+

@@ -82,6 +82,14 @@ class DataHelper:
                 image = cv2.imread(picture)
                 self.create_noise_image(picture, key, index, image)
 
+    def remove_noise_set(self):
+        for class_label in self.code.keys():
+            dir_name = './data/seg_train/' + class_label + '/'
+            dir_items = os.listdir(dir_name)
+            for item in dir_items:
+                if item.endswith("noise.jpg"):
+                    os.remove(os.path.join(dir_name, item))
+
     def load_and_resize(self, pictures, size=150):
         resized_pictures = {}
         for key in pictures.keys():
