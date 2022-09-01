@@ -3,7 +3,6 @@ from base_model import BaseModel
 from tensorflow import keras
 from keras.layers import Conv2D, MaxPool2D, Dense, Dropout, Flatten
 from keras.models import load_model
-import os
 
 
 class SimpleModel(BaseModel):
@@ -67,7 +66,6 @@ class SimpleModel(BaseModel):
         elif index == 1:
             path = self.model_path2
 
-        os.path.exists(path)
         self.model = load_model(path)
 
     def summary(self):
