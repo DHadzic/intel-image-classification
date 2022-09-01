@@ -25,7 +25,7 @@ Package versions:
 
 * Simple CNN 1 (`models/simple-14k-71p`)
 
-![Architecture](./assets/simple.png)
+<img src="assets/simple.png" width="761" height="383">
 
 Model trained on basic dataset. Architecture is shown above. Number of epoches is 20. Accuracy of given model is **71.6%**
 
