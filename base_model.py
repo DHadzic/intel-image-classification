@@ -1,28 +1,32 @@
 from abc import ABC, abstractmethod
+from tensorflow import keras
 
 
 class BaseModel(ABC):
     def __init__(self):
-        self._define_layers()
-        self.model = self._define_model()
+        self.input = None
+        self.output = None
+        self.define_layers()
+        self.model = self.__define_model()
 
     @property
     @abstractmethod
-    def _epochs(self):
+    def epochs(self):
         pass
 
     @property
     @abstractmethod
-    def _validation_split(self):
+    def validation_split(self):
         pass
 
     @abstractmethod
-    def _define_layers(self):
+    def define_layers(self):
         pass
 
-    @abstractmethod
-    def _define_model(self):
-        pass
+    def __define_model(self):
+        model = keras.models.Model(inputs=self.input, outputs=self.output)
+
+        return model
 
     @abstractmethod
     def train_model(self, x_train, y_train):

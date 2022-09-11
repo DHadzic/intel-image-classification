@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import cv2
 import os
+import random
 
 
 # noinspection PyMethodMayBeStatic
@@ -16,14 +17,15 @@ class DataHelper:
         file = path.split('/').pop()
         file = file.split('.')[0] + '_noise.' + file.split('.')[1]
         save_path = './data/seg_train/' + image_class + '/' + file
-        # Do it only for 1/3 of the set
-        if index % 12 == 0:
-            modified_image = self.noisy('gauss', image)
-        elif index % 12 == 1:
-            modified_image = self.noisy('s&p', image)
-        elif index % 12 == 2:
-            modified_image = self.noisy('poisson', image)
-        elif index % 12 == 3:
+
+        # Do it only for 1/2 of the set
+        if index % 8 == 0:
+            modified_image = self.noisy('zoom', image)
+        elif index % 8 == 1:
+            modified_image = self.noisy('flip', image)
+        elif index % 8 == 2:
+            modified_image = self.noisy('brightness', image)
+        elif index % 8 == 3:
             modified_image = self.noisy('speckle', image)
         else:
             return
@@ -36,41 +38,35 @@ class DataHelper:
         return ret_value
 
     def noisy(self, noise_typ, image):
-        if noise_typ == "gauss":
-            row, col, ch = image.shape
-            mean = 0
-            var = 0.1
-            sigma = var ** 0.5
-            gauss = np.random.normal(mean, sigma, (row, col, ch))
-            gauss = gauss.reshape(row, col, ch)
-            noisy_img = image + gauss
+        if noise_typ == "zoom":
+            zoom_index = 0.8
+            h, w = image.shape[:2]
+            h_taken = int(zoom_index * h)
+            w_taken = int(zoom_index * w)
+            h_start = random.randint(0, h - h_taken)
+            w_start = random.randint(0, w - w_taken)
+            image = image[h_start:h_start + h_taken, w_start:w_start + w_taken, :]
+            noisy_img = cv2.resize(image, (h, w), cv2.INTER_CUBIC)
             return noisy_img
-        elif noise_typ == "s&p":
-            _, _, _ = image.shape
-            s_vs_p = 0.5
-            amount = 0.004
-            out = np.copy(image)
-            # Salt mode
-            num_salt = np.ceil(amount * image.size * s_vs_p)
-            coords = [np.random.randint(0, i - 1, int(num_salt))
-                      for i in image.shape]
-            out[coords] = 1
-            # Pepper mode
-            num_pepper = np.ceil(amount * image.size * (1. - s_vs_p))
-            coords = [np.random.randint(0, i - 1, int(num_pepper))
-                      for i in image.shape]
-            out[coords] = 0
-            return out
-        elif noise_typ == "poisson":
-            vals = len(np.unique(image))
-            vals = 2 ** np.ceil(np.log2(vals))
-            noisy_img = np.random.poisson(image * vals) / float(vals)
+        elif noise_typ == "flip":
+            noisy_img = cv2.flip(image, 1)
+            return noisy_img
+        elif noise_typ == "brightness":
+            brightness_index = 0.75
+            hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+            hsv = np.array(hsv, dtype=np.float64)
+            hsv[:, :, 1] = hsv[:, :, 1] * brightness_index
+            hsv[:, :, 1][hsv[:, :, 1] > 255] = 255
+            hsv[:, :, 2] = hsv[:, :, 2] * brightness_index
+            hsv[:, :, 2][hsv[:, :, 2] > 255] = 255
+            hsv = np.array(hsv, dtype=np.uint8)
+            noisy_img = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
             return noisy_img
         elif noise_typ == "speckle":
             row, col, ch = image.shape
             gauss = np.random.randn(row, col, ch)
             gauss = gauss.reshape(row, col, ch)
-            noisy_img = image + image * gauss
+            noisy_img = image + image * (gauss * 0.1)
             return noisy_img
 
     def create_noise_set(self, pictures):
