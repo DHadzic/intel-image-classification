@@ -4,12 +4,57 @@ import matplotlib.pyplot as plot
 import cv2
 import os
 import random
+from sklearn.metrics import confusion_matrix
 
 
 # noinspection PyMethodMayBeStatic
 class DataHelper:
     def __init__(self):
         self.code = {'mountain': 0, 'street': 1, 'glacier': 2, 'buildings': 3, 'sea': 4, 'forest': 5}
+
+    def display_samples(self, pictures, size=150):
+        images = []
+        labels = []
+        for key in pictures.keys():
+            for picture in pictures[key]:
+                image = cv2.imread(picture)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                image = cv2.resize(image, (size, size))
+                images.append(image)
+                labels.append(key)
+
+        image = np.array(image)
+        labels = np.array(labels)
+
+        f, ax = plot.subplots(5, 5)
+        f.subplots_adjust(left=0, bottom=0, right=0.8, top=0.8)
+        for i in range(0, 5, 1):
+            for j in range(0, 5, 1):
+                rnd = random.randint(0, len(images))
+                ax[i, j].imshow(images[rnd])
+                ax[i, j].set_title(labels[rnd])
+                ax[i, j].axis('off')
+
+        plot.show()
+
+    def display_confiusion_matrix(self, model_obj, x_data, y_data):
+        predictions = model_obj.model.predict(x_data)
+        pred_data = np.argmax(predictions, axis=1)
+
+        conf_matrix = confusion_matrix(y_data, pred_data)
+
+        fig, ax = plot.subplots(figsize=(7.5, 7.5))
+        ax.matshow(conf_matrix, cmap=plot.cm.Blues, alpha=0.3)
+        for i in range(conf_matrix.shape[0]):
+            for j in range(conf_matrix.shape[1]):
+                ax.text(x=j, y=i, s=conf_matrix[i, j], va='center', ha='center', size='xx-large')
+
+        plot.xticks(np.arange(6), self.code.keys())
+        plot.yticks(np.arange(6), self.code.keys())
+        plot.xlabel('Predictions', fontsize=18)
+        plot.ylabel('Actuals', fontsize=18)
+        plot.title('Confusion Matrix', fontsize=18)
+        plot.show()
 
     def create_noise_image(self, path, image_class, index, image):
         if 'seg_train' not in path:
@@ -128,4 +173,11 @@ class DataHelper:
             for picture in pictures[key]:
                 x_data.append(picture)
                 y_data.append(self.code[key])
+
+        print(y_data.count(0))
+        print(y_data.count(1))
+        print(y_data.count(2))
+        print(y_data.count(3))
+        print(y_data.count(4))
+        print(y_data.count(5))
         return np.array(x_data), np.array(y_data)
