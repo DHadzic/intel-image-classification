@@ -23,6 +23,8 @@ Package versions:
 
 ## Models
 
+Models can be downloaded from [this link](https://drive.google.com/file/d/1blxW5WsyfxlvYk8Cu98vKYMVIiS9PNwA/view?usp=sharing). Once downloaded and extracted, all of the models located inside need to be copied into `models` directory.
+
 * **Simple CNN 1** (`models/simple-14k-71p`)
 
 <img src="assets/simple.png" width="761" height="383">
